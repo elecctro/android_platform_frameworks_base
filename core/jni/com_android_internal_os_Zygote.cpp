@@ -655,6 +655,7 @@ static void EnableKeepCapabilities(fail_fn_t fail_fn) {
   }
 }
 
+#ifndef CUSTOM_ROOT
 static void DropCapabilitiesBoundingSet(fail_fn_t fail_fn) {
   for (int i = 0; prctl(PR_CAPBSET_READ, i, 0, 0, 0) >= 0; i++) {;
     if (prctl(PR_CAPBSET_DROP, i, 0, 0, 0) == -1) {
@@ -667,6 +668,7 @@ static void DropCapabilitiesBoundingSet(fail_fn_t fail_fn) {
     }
   }
 }
+#endif
 
 static void SetInheritable(uint64_t inheritable, fail_fn_t fail_fn) {
   __user_cap_header_struct capheader;
@@ -1626,7 +1628,9 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
 
   SetInheritable(permitted_capabilities, fail_fn);
 
+#ifndef CUSTOM_ROOT
   DropCapabilitiesBoundingSet(fail_fn);
+#endif
 
   bool need_pre_initialize_native_bridge =
       !is_system_server &&
